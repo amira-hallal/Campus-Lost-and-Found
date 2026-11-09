@@ -8,7 +8,7 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 
 import Home from "./pages/Home";
-import LostItems from "./pages/CLF_LostItems";
+import ItemList from "./pages/ItemList";
 import ItemDetail from "./pages/ItemDetail";
 import ReportItem from "./pages/ReportItem";
 import EditItem from "./pages/EditItem";
@@ -31,7 +31,7 @@ function App() {
               <div className="flex-1">
                 <Routes>
                   <Route path="/" element={<Home />} />
-                  <Route path="/items" element={<LostItems />} />
+                  <Route path="/items" element={<ItemList />} />
                   <Route path="/items/new" element={<ReportItem />} />
                   <Route path="/items/:id" element={<ItemDetail />} />
                   <Route path="/items/:id/edit" element={<EditItem />} />
