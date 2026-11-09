@@ -20,9 +20,9 @@ npm run dev
 | `/items/:id/edit` | Edit item | `pages/EditItem.jsx` (placeholder) |
 | `/claims/:id` | Claim details | `pages/ClaimDetail.jsx` |
 | `/locations/:id` | Location details | `pages/LocationDetail.jsx` (placeholder) |
-| `/login` | Login | `pages/Login.jsx` (placeholder) |
+| `/login` | Login | `pages/Login.jsx` |
 | `/register` | Register | `pages/Register.jsx` |
-| `/dashboard` | My dashboard | `pages/Dashboard.jsx` (placeholder) |
+| `/dashboard` | My dashboard | `pages/Dashboard.jsx` |
 | `/report` | Redirects to `/items/new` (used by Home buttons) | |
 | `*` | 404 page | `pages/NotFound.jsx` |
 
@@ -59,5 +59,5 @@ so refreshing on a page like `/items/3` works.
 |--------|------|-------|
 | M1 | | |
 | M2 | | |
-| M3 | | |
-| M4 | mariam abadi| Navbar (links, hamburger menu on mobile, login/logout state, theme toggle), routes in `App.jsx`, Item Details (`/items/:id`), Register (`/register`), 404 page, deployment |
+| M3 | Amira Hallal | Login and My Reports & Claims Dashboard |
+| M4 | Mariam Abadi | Navbar (links, hamburger menu on mobile, login/logout state, theme toggle), routes in `App.jsx`, Item Details (`/items/:id`), Register (`/register`), 404 page, deployment |
