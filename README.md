@@ -1,4 +1,4 @@
-# M.A.R.S Campus Lost & Found
+# M.A.R.S Campus-Lost-and-Found
 
 React + Tailwind CSS + React Router. Frontend only (mock data in `src/data/mockData.js`).
 
@@ -52,3 +52,12 @@ so refreshing on a page like `/items/3` works.
   framework "Vite" (build `npm run build`, output `dist`) → Deploy.
 - **Netlify:** push to GitHub, then app.netlify.com → Add new site → Import from Git →
   build command `npm run build`, publish directory `dist` → Deploy.
+
+## Team
+
+| Member | Name | Parts |
+|--------|------|-------|
+| M1 | | |
+| M2 | | |
+| M3 | | |
+| M4 | mariam abadi| Navbar (links, hamburger menu on mobile, login/logout state, theme toggle), routes in `App.jsx`, Item Details (`/items/:id`), Register (`/register`), 404 page, deployment |
