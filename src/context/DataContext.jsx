@@ -128,7 +128,7 @@ export function DataProvider({ children }) {
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>;
 }
 
-// eslint-disable-next-line react/only-export-components
+// eslint-disable-next-line react-refresh/only-export-components
 export function useData() {
   const context = useContext(DataContext);
   if (!context) throw new Error("useData must be used inside <DataProvider>");

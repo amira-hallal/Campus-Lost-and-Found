@@ -9,7 +9,7 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { HandHeart, LayoutGrid, MapPin, Plus, Search, SearchX, SlidersHorizontal, X } from "lucide-react";
-import ItemCard from "../components/ItemCard";
+import ItemTile from "../components/ItemTile";
 import EmptyState from "../components/EmptyState";
 import { useData } from "../context/DataContext";
 import { CATEGORIES, ITEM_STATUSES } from "../data/mockData";
@@ -331,7 +331,7 @@ export default function ItemList() {
           <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {results.map((item) => (
               <li key={item.id}>
-                <ItemCard item={item} location={getLocation(item.locationId)} />
+                <ItemTile item={item} location={getLocation(item.locationId)} />
               </li>
             ))}
           </ul>

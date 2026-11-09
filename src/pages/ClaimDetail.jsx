@@ -8,6 +8,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import {
+  ArrowRight,
+  CalendarDays,
   Check,
   CheckCircle2,
   ChevronDown,
@@ -15,6 +17,7 @@ import {
   FileQuestion,
   Inbox,
   Lock,
+  MapPin,
   ShieldCheck,
   Tag,
   X,
@@ -23,7 +26,7 @@ import {
 import Modal from "../components/Modal";
 import StatusBadge from "../components/StatusBadge";
 import EmptyState from "../components/EmptyState";
-import ItemCard from "../components/ItemCard";
+import { getCategoryImage } from "../data/mockData";
 import { useData } from "../context/DataContext";
 import { useAuth } from "../context/AuthContext";
 import { formatDate, getInitials } from "../utils/format";
@@ -321,9 +324,56 @@ export default function ClaimDetail() {
         </section>
 
         {/* Linked item + pick-up info */}
-        <aside className="space-y-4 lg:self-start" aria-label="Claimed item">
+        <aside className="space-y-4 lg:self-start" aria-labelledby="linked-item-heading">
           <p className="eyebrow">The item</p>
-          <ItemCard item={item} location={location} />
+          <div className="card overflow-hidden">
+            <img
+              src={item.image || getCategoryImage(item.category)}
+              alt={item.title}
+              className="aspect-[4/3] w-full object-cover"
+            />
+            <div className="p-5">
+              <div className="flex flex-wrap gap-2">
+                <StatusBadge status={item.type} />
+                <StatusBadge status={item.status} />
+              </div>
+              <h2 id="linked-item-heading" className="mt-3 font-semibold text-ink dark:text-stone-50">
+                {item.title}
+              </h2>
+              <dl className="mt-3 space-y-2 text-sm text-muted dark:text-stone-400">
+                <div className="flex items-center gap-2">
+                  <dt className="sr-only">Category</dt>
+                  <Tag className="size-4 shrink-0" aria-hidden="true" />
+                  <dd>{item.category}</dd>
+                </div>
+                {location && (
+                  <div className="flex items-center gap-2">
+                    <dt className="sr-only">Location</dt>
+                    <MapPin className="size-4 shrink-0" aria-hidden="true" />
+                    <dd>
+                      <Link
+                        to={`/locations/${location.id}`}
+                        className="hover:text-brand-700 hover:underline dark:hover:text-brand-300"
+                      >
+                        {location.name}
+                      </Link>
+                    </dd>
+                  </div>
+                )}
+                <div className="flex items-center gap-2">
+                  <dt className="sr-only">{isFoundItem ? "Date found" : "Date lost"}</dt>
+                  <CalendarDays className="size-4 shrink-0" aria-hidden="true" />
+                  <dd>
+                    {isFoundItem ? "Found" : "Lost"} on <time dateTime={item.date}>{formatDate(item.date)}</time>
+                  </dd>
+                </div>
+              </dl>
+              <Link to={`/items/${item.id}`} className="btn-secondary mt-5 w-full">
+                View item details
+                <ArrowRight className="size-4" aria-hidden="true" />
+              </Link>
+            </div>
+          </div>
           {isFoundItem && location && claim.status !== "rejected" && (
             <div className="rounded-xl bg-brand-100 p-4 text-sm dark:bg-brand-900/50">
               <p className="flex items-center gap-2 font-medium text-ink dark:text-stone-50">
