@@ -14,7 +14,7 @@ npm run dev
 | Path | Page | File |
 |------|------|------|
 | `/` | Home | `pages/Home.jsx` |
-| `/items` | Item list | `pages/CLF_LostItems.jsx` |
+| `/items` | Item list | `pages/ItemList.jsx` |
 | `/items/new` | Report an item | `pages/ReportItem.jsx` (placeholder) |
 | `/items/:id` | Item details | `pages/ItemDetail.jsx` |
 | `/items/:id/edit` | Edit item | `pages/EditItem.jsx` (placeholder) |
