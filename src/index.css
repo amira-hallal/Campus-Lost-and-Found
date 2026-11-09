@@ -1,2 +1,87 @@
 @import "tailwindcss";
 @custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-brand-50: #f1f5ef;
+  --color-brand-100: #dce6d8;
+  --color-brand-200: #c5d6bd;
+  --color-brand-300: #a9c4a3;
+  --color-brand-400: #84a689;
+  --color-brand-500: #5e8a68;
+  --color-brand-600: #47745a;
+  --color-brand-700: #315c49;
+  --color-brand-800: #244b3c;
+  --color-brand-900: #1b3a2e;
+  --color-brand-950: #10241c;
+
+  /* Dark mode backgrounds (very dark greens) */
+  --color-night-700: #34443b;
+  --color-night-800: #23302a;
+  --color-night-900: #18221d;
+  --color-night-950: #101713;
+
+  --color-ink: #244b3c;   /* headings */
+  --color-body: #343a35;  /* normal text */
+  --color-muted: #68796c; /* secondary text */
+  --color-cream: #f7f5ec; /* page background */
+  --color-line: #dce6d8;  /* borders */
+}
+
+@layer base {
+  body {
+    @apply bg-cream text-body antialiased dark:bg-night-950 dark:text-stone-300;
+  }
+}
+
+/* Shared building blocks used by several pages */
+@layer components {
+  .display {
+    @apply font-bold tracking-tight text-ink dark:text-stone-50;
+  }
+  .eyebrow {
+    @apply text-xs font-semibold tracking-[0.14em] text-brand-600 uppercase dark:text-brand-300;
+  }
+  .card {
+    @apply rounded-2xl border border-line bg-white dark:border-night-700 dark:bg-night-900;
+  }
+  .btn-primary,
+  .btn-secondary,
+  .btn-danger,
+  .btn-danger-outline {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-5 py-2.5 text-sm font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 disabled:cursor-not-allowed disabled:opacity-60;
+  }
+  .btn-primary {
+    @apply bg-brand-800 text-white hover:bg-brand-700 dark:bg-brand-500 dark:text-night-950 dark:hover:bg-brand-400;
+  }
+  .btn-secondary {
+    @apply border border-line bg-white text-ink hover:bg-brand-50 dark:border-night-700 dark:bg-night-900 dark:text-stone-100 dark:hover:bg-night-800;
+  }
+  .btn-danger {
+    @apply bg-rose-700 text-white hover:bg-rose-800;
+  }
+  .btn-danger-outline {
+    @apply border border-rose-300 bg-white text-rose-700 hover:bg-rose-50 dark:border-rose-500/40 dark:bg-transparent dark:text-rose-300 dark:hover:bg-rose-500/10;
+  }
+  .form-label {
+    @apply mb-1.5 block text-sm font-semibold text-body dark:text-stone-200;
+  }
+  .form-input {
+    @apply w-full rounded-lg border border-line bg-white px-3 py-2.5 text-sm text-body placeholder:text-muted focus:border-brand-700 focus:ring-2 focus:ring-brand-700/30 focus:outline-none dark:border-night-700 dark:bg-night-900 dark:text-stone-100;
+  }
+  .form-input[aria-invalid="true"] {
+    @apply border-rose-500 focus:border-rose-500 focus:ring-rose-500/30;
+  }
+  .form-error {
+    @apply mt-1.5 text-sm text-rose-700 dark:text-rose-300;
+  }
+  .pill,
+  .pill-active {
+    @apply rounded-full border px-4 py-1.5 text-sm transition;
+  }
+  .pill {
+    @apply border-line bg-white text-body hover:border-brand-400 dark:border-night-700 dark:bg-night-900 dark:text-stone-300;
+  }
+  .pill-active {
+    @apply border-brand-800 bg-brand-800 text-white dark:border-brand-400 dark:bg-brand-400 dark:text-night-950;
+  }
+}
