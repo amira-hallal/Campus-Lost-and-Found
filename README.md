@@ -16,7 +16,7 @@ The main entities are:
 
 The application uses mock data to simulate CRUD operations. Users can add, edit, and delete items through the interface.
 
-Item changes are managed using React Context and saved in the browser's localStorage, so they remain available after refreshing the page. Other mock data is managed through the shared application state.
+All data (items, claims, users and locations) lives in React state through the shared `DataContext`, so a change on one page shows up on every other page while the app is running. Refreshing the page resets everything to the original mock data in `src/data/mockData.js`.
 
 ## Run Locally
 
@@ -32,10 +32,10 @@ npm run dev
 | Path | Page | File |
 |------|------|------|
 | `/` | Home | `pages/Home.jsx` |
-| `/items` | Item List | `pages/CLF_LostItems.jsx` |
+| `/items` | Item List | `pages/ItemList.jsx` |
 | `/items/new` | Report an Item | `pages/ItemForm.jsx` |
-| `/items/:id` | Item Details | `pages/ItemDetails.jsx` |
-| `/edit/:id` | Edit Item | `pages/ItemForm.jsx` |
+| `/items/:id` | Item Details | `pages/ItemDetail.jsx` |
+| `/items/:id/edit` | Edit Item | `pages/ItemForm.jsx` |
 | `/claims/:id` | Claim Details | `pages/ClaimDetail.jsx` |
 | `/locations/:id` | Location Details | `pages/LocationDetail.jsx` |
 | `/login` | Login | `pages/Login.jsx` |
@@ -89,7 +89,7 @@ The project includes `vercel.json` (Vercel) and `public/_redirects` (Netlify) to
 
 | Member | Name | Parts |
 |--------|------|-------|
-| M1 | Roua Youness | Homepage (`/`): designed the homepage layout, hero section, statistics displaying total reports, lost items, and found items, Recent Reports section, and call-to-action section. Connected homepage content to item data. Developed reusable Item Cards displaying item images and information, and connected them to individual item details pages. Implemented simulated item management (adding, editing, and deleting items) using React Context. Developed the reusable Add/Edit Item form with required-field validation and used localStorage to persist changes in the browser. |
+| M1 | Roua Youness | Homepage (`/`): designed the homepage layout, hero section, statistics displaying total reports, lost items, and found items, Recent Reports section, and call-to-action section. Connected homepage content to item data. Developed reusable Item Cards displaying item images and information, and connected them to individual item details pages. Implemented simulated item management (adding, editing, and deleting items) using React Context. Developed the reusable Add/Edit Item form with required-field validation. |
 | M2 | Sara Abdo | Item List (`/items`), Claim Details (`/claims/:id`), and Location Details (`/locations/:id`). Mock data (`mockData.js`), shared state (`DataContext`), reusable Modal, and ItemTile card. |
 | M3 | Amira Hallal | Login and My Reports & Claims Dashboard. |
 | M4 | Mariam Abadi | Navbar (links, mobile hamburger menu, login/logout state, and theme toggle), routes in `App.jsx`, Item Details (`/items/:id`), Register (`/register`), 404 page, and deployment. |
