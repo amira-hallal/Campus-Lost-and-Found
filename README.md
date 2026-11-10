@@ -2,6 +2,14 @@
 
 React + Tailwind CSS + React Router. Frontend only (mock data in `src/data/mockData.js`).
 
+## Project topic and entities
+
+The topic is Campus Lost & Found. The main entities are Items, Locations, Claims, and Users.
+
+## How mock data simulates CRUD
+
+The mock data starts in React state. Adding, editing, or deleting data changes the state while the app is running. Refreshing the page resets it to the original mock data.
+
 ## Run locally
 
 ```bash
@@ -32,16 +40,16 @@ To build a placeholder page, replace the contents of its file.
 
 - **Data:** `useData()` from `context/DataContext.jsx` (items, users, claims, locations).
 - **Login state:** `useAuth()` from `context/AuthContext.jsx` gives
-  `{ currentUser, login(email, password), logout(), register(form), emailExists(email) }`.
-  `login` returns the user, or `null` if the email or password is wrong.
-  Demo accounts are in `mockData.js` (password `password123`).
+  `{ currentUser, login(email, password), logout(), register(form), emailExists(email) }`.
+  `login` returns the user, or `null` if the email or password is wrong.
+  Demo accounts are in `mockData.js` (password `password123`).
 - **Theme:** `useTheme()` from `context/ThemeContext.jsx` gives `{ theme, toggleTheme }`.
-  Add `dark:` classes to support dark mode.
+  Add `dark:` classes to support dark mode.
 - **Colors** (defined in `src/index.css`, based on our palette):
-  `brand-50` to `brand-950` (greens, `brand-800` = #244B3C), `cream` (#F7F5EC), `line` (#DCE6D8),
-  `ink` (headings), `body` (text), `muted` (#68796C), and `night-700` to `night-950` for dark mode.
-  Ready-made classes: `btn-primary`, `btn-secondary`, `btn-danger`, `btn-danger-outline`,
-  `card`, `form-label`, `form-input`, `form-error`, `display`, `eyebrow`, `pill`, `pill-active`.
+  `brand-50` to `brand-950` (greens, `brand-800` = #244B3C), `cream` (#F7F5EC), `line` (#DCE6D8),
+  `ink` (headings), `body` (text), `muted` (#68796C), and `night-700` to `night-950` for dark mode.
+  Ready-made classes: `btn-primary`, `btn-secondary`, `btn-danger`, `btn-danger-outline`,
+  `card`, `form-label`, `form-input`, `form-error`, `display`, `eyebrow`, `pill`, `pill-active`.
 
 ## Deployment
 
@@ -49,9 +57,9 @@ To build a placeholder page, replace the contents of its file.
 so refreshing on a page like `/items/3` works.
 
 - **Vercel:** push to GitHub, then vercel.com → Add New Project → import the repo →
-  framework "Vite" (build `npm run build`, output `dist`) → Deploy.
+  framework "Vite" (build `npm run build`, output `dist`) → Deploy.
 - **Netlify:** push to GitHub, then app.netlify.com → Add new site → Import from Git →
-  build command `npm run build`, publish directory `dist` → Deploy.
+  build command `npm run build`, publish directory `dist` → Deploy.
 
 ## Team
 
