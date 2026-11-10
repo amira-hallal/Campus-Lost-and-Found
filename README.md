@@ -25,7 +25,7 @@ npm run dev
 | `/items` | Item list | `pages/ItemList.jsx` |
 | `/items/new` | Report an item | `pages/ReportItem.jsx` (placeholder) |
 | `/items/:id` | Item details | `pages/ItemDetail.jsx` |
-| `/items/:id/edit` | Edit item | `pages/EditItem.jsx` (placeholder) |
+| `/items/:id/edit` | Edit item | `pages/EditItem.jsx` |
 | `/claims/:id` | Claim details | `pages/ClaimDetail.jsx` |
 | `/locations/:id` | Location details | `pages/LocationDetail.jsx` (placeholder) |
 | `/login` | Login | `pages/Login.jsx` |
@@ -66,6 +66,6 @@ so refreshing on a page like `/items/3` works.
 | Member | Name | Parts |
 |--------|------|-------|
 | M1 | | |
-| M2 | | |
+| M2 | Sara Abdo | Item List (`/items`) and Claim Details (`/claims/:id`), plus Location Details (`/locations/:id`). Mock data (`mockData.js`) and shared state (`DataContext`), reusable Modal, ItemTile card |
 | M3 | Amira Hallal | Login and My Reports & Claims Dashboard |
 | M4 | Mariam Abadi | Navbar (links, hamburger menu on mobile, login/logout state, theme toggle), routes in `App.jsx`, Item Details (`/items/:id`), Register (`/register`), 404 page, deployment |
