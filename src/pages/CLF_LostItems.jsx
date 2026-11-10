@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { Search, SlidersHorizontal } from "lucide-react";
 
-import items from "../data/items";
+import { useItems } from "../context/ItemsContext";
 import ItemCard from "../components/ItemCard";
 
 export default function LostItems() {
+  const { items } = useItems();
+
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("All");
   const [category, setCategory] = useState("All");
@@ -50,7 +52,7 @@ export default function LostItems() {
     setSort("Newest");
   }
 
-  // SHARED INPUT STYLE
+  // INPUT STYLE
   const selectStyle =
     "w-full border border-[#DCE6D8] rounded-lg p-3 bg-[#F7F5EC] text-[#343A35] outline-none focus:ring-2 focus:ring-[#244B3C] focus:border-[#244B3C] transition";
 
@@ -143,41 +145,32 @@ export default function LostItems() {
             </div>
 
             {/* BUILDING */}
-{/* BUILDING */}
-<div>
-  <label className="block font-semibold text-[#343A35] mb-2">
-    Building
-  </label>
+            <div>
+              <label className="block font-semibold text-[#343A35] mb-2">
+                Building
+              </label>
 
-  <select
-    value={building}
-    onChange={(e) => setBuilding(e.target.value)}
-    className={selectStyle}
-  >
-    <option value="All">All Buildings</option>
-    <option value="Adnan Kassar School of Business">
-      Adnan Kassar School of Business
-    </option>
-    <option value="Gezairi Building">Gezairi Building</option>
-    <option value="Irwin Hall">Irwin Hall</option>
-    <option value="Nicol Hall">Nicol Hall</option>
-    <option value="Orme-Gray">Orme-Gray</option>
-    <option value="Riyad Nassar Library">Riyad Nassar Library</option>
-    <option value="Safadi Fine Arts">Safadi Fine Arts</option>
-    <option value="Sage Hall">Sage Hall</option>
-    <option value="Wadad Sabbagh Khoury Student Center">
-      Wadad Sabbagh Khoury Student Center
-    </option>
-    <option value="Joseph G. Jabbra Gymnasium">
-      Joseph G. Jabbra Gymnasium
-    </option>
-    <option value="Beirut Underground Parking">
-      Beirut Underground Parking
-    </option>
-  </select>
-</div>
+              <select
+                value={building}
+                onChange={(e) => setBuilding(e.target.value)}
+                className={selectStyle}
+              >
+                <option value="All">All Buildings</option>
+                <option value="Adnan Kassar School of Business">Adnan Kassar School of Business</option>
+                <option value="Gezairi Building">Gezairi Building</option>
+                <option value="Irwin Hall">Irwin Hall</option>
+                <option value="Nicol Hall">Nicol Hall</option>
+                <option value="Orme-Gray">Orme-Gray</option>
+                <option value="Riyad Nassar Library">Riyad Nassar Library</option>
+                <option value="Safadi Fine Arts">Safadi Fine Arts</option>
+                <option value="Sage Hall">Sage Hall</option>
+                <option value="Wadad Sabbagh Khoury Student Center">Wadad Sabbagh Khoury Student Center</option>
+                <option value="Joseph G. Jabbra Gymnasium">Joseph G. Jabbra Gymnasium</option>
+                <option value="Beirut Underground Parking">Beirut Underground Parking</option>
+              </select>
+            </div>
 
-            {/* DATE */}
+            {/* DATE SORTING */}
             <div>
               <label className="block font-semibold text-[#343A35] mb-2">
                 Sort by Date

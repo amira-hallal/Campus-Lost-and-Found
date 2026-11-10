@@ -1,9 +1,12 @@
+import { Link } from "react-router-dom";
 import { MapPin, Calendar, Package } from "lucide-react";
 
 export default function ItemCard({ item }) {
   return (
-    <div className="bg-white rounded-2xl overflow-hidden border border-[#DCE6D8] shadow-sm hover:shadow-lg hover:-translate-y-1 transition duration-300">
-
+    <Link
+      to={`/items/${item.id}`}
+      className="block bg-white rounded-2xl overflow-hidden border border-[#DCE6D8] shadow-sm hover:shadow-lg hover:-translate-y-1 transition duration-300"
+    >
       {/* Item Image */}
       <div className="h-52 bg-[#DCE6D8] relative overflow-hidden">
 
@@ -20,7 +23,7 @@ export default function ItemCard({ item }) {
           />
         ) : null}
 
-        {/* Fallback if there is no image or image fails to load */}
+        {/* Fallback Image */}
         <div
           style={{ display: item.image ? "none" : "flex" }}
           className="w-full h-full flex-col items-center justify-center text-[#68796C]"
@@ -75,6 +78,6 @@ export default function ItemCard({ item }) {
       </div>
 
       <div className="h-1.5 bg-[#DCE6D8]"></div>
-    </div>
+    </Link>
   );
 }

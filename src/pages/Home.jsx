@@ -8,10 +8,11 @@ import {
   MapPin
 } from "lucide-react";
 
-import items from "../data/items";
+import { useItems } from "../context/ItemsContext";
 import ItemCard from "../components/ItemCard";
 
 export default function Home() {
+  const { items } = useItems();
   const recentItems = [...items]
     .sort((a, b) => new Date(b.date) - new Date(a.date))
     .slice(0, 6);

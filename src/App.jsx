@@ -8,6 +8,7 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 
 import Home from "./pages/Home";
+<<<<<<< HEAD
 import ItemList from "./pages/ItemList";
 import ItemDetail from "./pages/ItemDetail";
 import ReportItem from "./pages/ReportItem";
@@ -54,6 +55,31 @@ function App() {
         </DataProvider>
       </ThemeProvider>
     </BrowserRouter>
+=======
+import LostItems from "./pages/CLF_LostItems";
+import ItemDetails from "./pages/ItemDetails";
+import ItemForm from "./pages/ItemForm";
+
+import { ItemsProvider } from "./context/ItemsContext";
+
+function App() {
+  return (
+    <ItemsProvider>
+      <BrowserRouter>
+        <Navbar />
+
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/items" element={<LostItems />} />
+          <Route path="/items/:id" element={<ItemDetails />} />
+          <Route path="/report" element={<ItemForm />} />
+          <Route path="/edit/:id" element={<ItemForm />} />
+        </Routes>
+
+        <Footer />
+      </BrowserRouter>
+    </ItemsProvider>
+>>>>>>> 6368f8d (Add item management and homepage updates)
   );
 }
 
