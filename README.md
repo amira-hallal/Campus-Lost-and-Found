@@ -85,6 +85,30 @@ The project includes `vercel.json` (Vercel) and `public/_redirects` (Netlify) to
 5. Set the publish directory to `dist`.
 6. Deploy.
 
+## Screenshots
+
+All screenshots are in `docs/screenshots/`.
+
+| Homepage | Item List with search and filters |
+|---|---|
+| ![Homepage](docs/screenshots/01-homepage.png) | ![Item List](docs/screenshots/02-item-list.png) |
+| **Item Details** | **Report an Item form** |
+| ![Item Details](docs/screenshots/03-item-details.png) | ![Report form](docs/screenshots/04-report-form.png) |
+| **Location Details** | **Claim Details** |
+| ![Location Details](docs/screenshots/05-location-details.png) | ![Claim Details](docs/screenshots/06-claim-details.png) |
+| **Approving a claim (modal)** | **Dashboard** |
+| ![Approve claim](docs/screenshots/06b-approve-claim.png) | ![Dashboard](docs/screenshots/07-dashboard.png) |
+| **Login (wrong password)** | **Register (form validation)** |
+| ![Login](docs/screenshots/08-login.png) | ![Register](docs/screenshots/09-register.png) |
+| **Dark mode** | |
+| ![Dark mode](docs/screenshots/10-dark-mode.png) | |
+
+**On a phone**
+
+| Homepage | Location Details |
+|---|---|
+| ![Mobile homepage](docs/screenshots/11-mobile-homepage.png) | ![Mobile Location Details](docs/screenshots/12-mobile-location.png) |
+
 ## Team
 
 | Member | Name | Parts |
