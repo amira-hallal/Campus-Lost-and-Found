@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, Save } from "lucide-react";
 import { useItems } from "../context/ItemsContext";
+import { useAuth } from "../context/AuthContext";
 
 const buildings = [
   "Adnan Kassar School of Business",
@@ -28,6 +29,7 @@ const emptyForm = {
 };
 
 export default function ItemForm() {
+  const { currentUser } = useAuth();
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -65,7 +67,7 @@ export default function ItemForm() {
     if (isEditing) {
       updateItem(id, formData);
     } else {
-      addItem(formData);
+      addItem({ ...formData, postedBy: currentUser.id });
     }
 
     navigate(isEditing ? `/items/${id}` : "/items");

@@ -3,10 +3,14 @@ import { useAuth } from "../context/AuthContext";
 import { useData } from "../context/DataContext";
 import StatusBadge from "../components/StatusBadge";
 import { formatDate } from "../utils/format";
+import { useItems } from "../context/ItemsContext";
 
 export default function Dashboard() {
   const { currentUser } = useAuth();
-  const { items, claims, getItem, getLocation, getUser, deleteItem } = useData();
+  const { claims, getLocation, getUser } = useData();
+  const { items, deleteItem } = useItems();
+  const getItem = (itemId) =>
+    items.find((item) => Number(item.id) === Number(itemId));
 
   if (!currentUser) {
     return <Navigate to="/login" replace />;
@@ -79,9 +83,9 @@ export default function Dashboard() {
                   className="flex flex-wrap items-center justify-between gap-3 border-b border-[#edf0e9] py-4 dark:border-night-700"
                 >
                   <div>
-                    <p className="font-medium">{item.title}</p>
+                    <p className="font-medium">{item.title || item.name}</p>
                     <p className="mt-1 text-sm text-[#6d776f] dark:text-stone-400">
-                      {item.type} · {location?.name || location?.building || "Campus"} ·{" "}
+                      {item.type || item.status} · {item.building || location?.name || location?.building || "Campus"} ·{" "}
                       {formatDate(item.date)}
                     </p>
                   </div>
@@ -89,7 +93,7 @@ export default function Dashboard() {
                   <div className="flex items-center gap-3">
                     <StatusBadge status={item.status} />
                     <Link
-                      to={`/items/${item.id}/edit`}
+                      to={`/edit/${item.id}`}
                       className="text-sm text-[#216747] dark:text-brand-300"
                     >
                       Edit
