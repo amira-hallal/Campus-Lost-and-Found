@@ -11,23 +11,34 @@ export default function Login() {
   const navigate = useNavigate();
 
   function handleSubmit(event) {
-    event.preventDefault();
-    setError("");
+  event.preventDefault();
+  setError("");
 
-    if (!email.trim() || !password) {
-      setError("Please enter your email and password.");
-      return;
-    }
+  const cleanEmail = email.trim();
 
-    const user = login(email, password);
-
-    if (user) {
-      navigate("/dashboard");
-    } else {
-      setError("Email or password is incorrect.");
-    }
+  if (!cleanEmail) {
+    setError("Please enter your email.");
+    return;
   }
 
+   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
+    setError("Please enter a valid email address.");
+    return;
+  }
+
+   if (!password) {
+    setError("Please enter your password.");
+    return;
+  }
+
+  const user = login(cleanEmail, password);
+
+  if (user) {
+    navigate("/dashboard");
+  } else {
+    setError("Email or password is incorrect.");
+  }
+}
   return (
     <main className="min-h-screen bg-[#f7f6f0] px-5 py-10 text-[#213b31] dark:bg-night-900 dark:text-stone-100">
       <section className="mx-auto mt-10 max-w-md rounded-2xl border border-[#e2e6de] bg-white p-7 shadow-sm dark:border-night-700 dark:bg-night-800 sm:p-10">
@@ -39,7 +50,7 @@ export default function Login() {
           Sign in to manage your lost and found reports.
         </p>
 
-        <form onSubmit={handleSubmit} className="mt-8 space-y-5">
+        <form onSubmit={handleSubmit} className="mt-8 space-y-5" noValidate>
           <div>
             <label htmlFor="email" className="mb-2 block text-sm font-medium">
               Campus email
