@@ -16,7 +16,7 @@ The main entities are:
 
 ## How Mock Data Simulates CRUD
 
-The application uses mock data to simulate CRUD operations. Users can add, edit, and delete items through the interface.
+The application uses mock data to simulate interactions. Users can add reports, edit their own reports, and close reports they submitted. Other users can submit and manage claims through the claim workflow.
 
 All data (items, claims, users and locations) lives in React state through the shared `DataContext`, so a change on one page shows up on every other page while the app is running. Refreshing the page resets everything to the original mock data in `src/data/mockData.js`.
 
@@ -34,7 +34,7 @@ npm run dev
 | Path | Page | File |
 |------|------|------|
 | `/` | Home | `pages/Home.jsx` |
-| `/items` | Item List | `pages/ItemList.jsx` |
+| `/items` | Item List with search, category, building, date and status filters | `pages/ItemList.jsx` |
 | `/items/new` | Report an Item | `pages/ItemForm.jsx` |
 | `/items/:id` | Item Details | `pages/ItemDetail.jsx` |
 | `/items/:id/edit` | Edit Item | `pages/ItemForm.jsx` |
@@ -48,13 +48,12 @@ npm run dev
 
 ## Shared Tools
 
-- **Data:** `useData()` from `context/DataContext.jsx` provides access to items, users, claims, and locations.
+- **Data:** `useData()` from `context/DataContext.jsx` is the single source of truth for items, users, claims, and locations. The compatibility `useItems()` hook translates older form fields into this shared item state; it does not create a second store.
 - **Login State:** `useAuth()` from `context/AuthContext.jsx` provides:
   `{ currentUser, login(email, password), logout(), register(form), emailExists(email) }`.
   The `login` function returns the user or `null` if the email or password is incorrect.
   Demo accounts are available in `mockData.js` (password: `password123`).
-- **Theme:** `useTheme()` from `context/ThemeContext.jsx` provides `{ theme, toggleTheme }`.
-  Use `dark:` classes to support dark mode.
+- **Theme:** `useTheme()` from `context/ThemeContext.jsx` provides `{ theme, toggleTheme }`. Shared pages use palette tokens in `src/index.css` and Tailwind `dark:` classes.
 - **Colors:** Defined in `src/index.css`, based on the project palette:
   - `brand-50` to `brand-950` (greens, with `brand-800` = `#244B3C`)
   - `cream` (`#F7F5EC`)

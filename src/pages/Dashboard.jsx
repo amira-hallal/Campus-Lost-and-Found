@@ -3,14 +3,10 @@ import { useAuth } from "../context/AuthContext";
 import { useData } from "../context/DataContext";
 import StatusBadge from "../components/StatusBadge";
 import { formatDate } from "../utils/format";
-import { useItems } from "../context/ItemsContext";
 
 export default function Dashboard() {
   const { currentUser } = useAuth();
-  const { claims, getLocation, getUser } = useData();
-  const { items, deleteItem } = useItems();
-  const getItem = (itemId) =>
-    items.find((item) => Number(item.id) === Number(itemId));
+  const { claims, items, getItem, getLocation, getUser, updateItem } = useData();
 
   if (!currentUser) {
     return <Navigate to="/login" replace />;
@@ -22,12 +18,6 @@ export default function Dashboard() {
     (claim) => getItem(claim.itemId)?.postedBy === currentUser.id
   );
   const foundCount = myItems.filter((item) => item.type === "found").length;
-
-  function handleDelete(itemId) {
-    if (window.confirm("Delete this item report?")) {
-      deleteItem(itemId);
-    }
-  }
 
   return (
     <main className="min-h-screen bg-[#f7f6f0] px-5 py-10 text-[#213b31] dark:bg-night-900 dark:text-stone-100">
@@ -83,9 +73,9 @@ export default function Dashboard() {
                   className="flex flex-wrap items-center justify-between gap-3 border-b border-[#edf0e9] py-4 dark:border-night-700"
                 >
                   <div>
-                    <p className="font-medium">{item.title || item.name}</p>
+                    <p className="font-medium">{item.title}</p>
                     <p className="mt-1 text-sm text-[#6d776f] dark:text-stone-400">
-                      {item.type || item.status} · {item.building || location?.name || location?.building || "Campus"} ·{" "}
+                      {item.type} · {location?.name || "Campus"} ·{" "}
                       {formatDate(item.date)}
                     </p>
                   </div>
@@ -93,18 +83,16 @@ export default function Dashboard() {
                   <div className="flex items-center gap-3">
                     <StatusBadge status={item.status} />
                     <Link
-                      to={`/edit/${item.id}`}
+                      to={`/items/${item.id}/edit`}
                       className="text-sm text-[#216747] dark:text-brand-300"
                     >
                       Edit
                     </Link>
-                    <button
+                    {item.status !== "closed" && <button
                       type="button"
-                      onClick={() => handleDelete(item.id)}
+                      onClick={() => updateItem(item.id, { status: "closed" })}
                       className="text-sm text-red-700 dark:text-red-300"
-                    >
-                      Delete
-                    </button>
+                    >Close report</button>}
                   </div>
                 </div>
               );

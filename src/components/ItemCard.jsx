@@ -5,10 +5,10 @@ export default function ItemCard({ item }) {
   return (
     <Link
       to={`/items/${item.id}`}
-      className="block bg-white rounded-2xl overflow-hidden border border-[#DCE6D8] shadow-sm hover:shadow-lg hover:-translate-y-1 transition duration-300"
+      className="block bg-white dark:bg-night-900 rounded-2xl overflow-hidden border border-line dark:border-night-700 shadow-sm hover:shadow-lg hover:-translate-y-1 transition duration-300"
     >
       {/* Item Image */}
-      <div className="h-52 bg-[#DCE6D8] relative overflow-hidden">
+      <div className="h-52 bg-brand-100 dark:bg-night-800 relative overflow-hidden">
 
         {item.image ? (
           <img
@@ -26,7 +26,7 @@ export default function ItemCard({ item }) {
         {/* Fallback Image */}
         <div
           style={{ display: item.image ? "none" : "flex" }}
-          className="w-full h-full flex-col items-center justify-center text-[#68796C]"
+          className="w-full h-full flex-col items-center justify-center text-muted dark:text-stone-400"
         >
           <Package size={48} strokeWidth={1.3} />
           <span className="text-sm mt-2 font-medium">
@@ -50,21 +50,21 @@ export default function ItemCard({ item }) {
       <div className="p-5">
 
         <div className="flex justify-between items-start gap-3 mb-3">
-          <h3 className="text-xl font-bold text-[#244B3C]">
+          <h3 className="text-xl font-bold text-ink dark:text-stone-50">
             {item.name}
           </h3>
 
-          <span className="text-xs bg-[#F7F5EC] text-[#68796C] px-3 py-1 rounded-full whitespace-nowrap">
+          <span className="text-xs bg-cream dark:bg-night-800 text-muted dark:text-stone-300 px-3 py-1 rounded-full whitespace-nowrap">
             {item.category}
           </span>
         </div>
 
-        <p className="text-[#68796C] text-sm leading-relaxed mb-5 min-h-[40px]">
+        <p className="text-muted dark:text-stone-400 text-sm leading-relaxed mb-5 min-h-[40px]">
           {item.description}
         </p>
 
         {/* Building */}
-        <div className="flex items-center gap-2 text-sm text-[#52765F] mb-3">
+        <div className="flex items-center gap-2 text-sm text-brand-700 dark:text-brand-300 mb-3">
           <MapPin size={17} />
           <span>{item.building}</span>
         </div>

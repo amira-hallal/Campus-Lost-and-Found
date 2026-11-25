@@ -26,7 +26,7 @@ export default function Home() {
   ).length;
 
   return (
-    <main className="bg-[#F7F5EC] min-h-screen text-[#343A35]">
+    <main className="bg-cream min-h-screen text-body dark:bg-night-950 dark:text-stone-100">
 
       {/* HERO SECTION */}
       <section className="bg-[#244B3C] text-[#F7F5EC]">
@@ -82,42 +82,42 @@ export default function Home() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
 
-          <div className="bg-white rounded-2xl p-7 shadow-sm border border-[#E6E5D9] flex items-center gap-5">
+          <div className="bg-white dark:bg-night-900 rounded-2xl p-7 shadow-sm border border-line dark:border-night-700 flex items-center gap-5">
             <div className="bg-[#DCE6D8] text-[#244B3C] p-4 rounded-xl">
               <Package size={28} />
             </div>
 
             <div>
-              <h2 className="text-3xl font-bold text-[#244B3C]">
+              <h2 className="text-3xl font-bold text-[#244B3C] dark:text-stone-50">
                 {items.length}
               </h2>
-              <p className="text-[#747A70]">Total Reports</p>
+              <p className="text-[#747A70] dark:text-stone-400">Total Reports</p>
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl p-7 shadow-sm border border-[#E6E5D9] flex items-center gap-5">
+          <div className="bg-white dark:bg-night-900 rounded-2xl p-7 shadow-sm border border-line dark:border-night-700 flex items-center gap-5">
             <div className="bg-[#F3E3D8] text-[#A65E43] p-4 rounded-xl">
               <Search size={28} />
             </div>
 
             <div>
-              <h2 className="text-3xl font-bold text-[#244B3C]">
+              <h2 className="text-3xl font-bold text-[#244B3C] dark:text-stone-50">
                 {lostCount}
               </h2>
-              <p className="text-[#747A70]">Lost Items</p>
+              <p className="text-[#747A70] dark:text-stone-400">Lost Items</p>
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl p-7 shadow-sm border border-[#E6E5D9] flex items-center gap-5">
+          <div className="bg-white dark:bg-night-900 rounded-2xl p-7 shadow-sm border border-line dark:border-night-700 flex items-center gap-5">
             <div className="bg-[#DCE6D8] text-[#47745A] p-4 rounded-xl">
               <CheckCircle size={28} />
             </div>
 
             <div>
-              <h2 className="text-3xl font-bold text-[#244B3C]">
+              <h2 className="text-3xl font-bold text-[#244B3C] dark:text-stone-50">
                 {foundCount}
               </h2>
-              <p className="text-[#747A70]">Found Items</p>
+              <p className="text-[#747A70] dark:text-stone-400">Found Items</p>
             </div>
           </div>
 
@@ -131,22 +131,22 @@ export default function Home() {
         <div className="flex flex-col sm:flex-row justify-between sm:items-end gap-4 mb-10">
 
           <div>
-            <p className="text-[#718B70] font-semibold uppercase tracking-widest text-sm mb-3">
+            <p className="text-brand-600 dark:text-brand-300 font-semibold uppercase tracking-widest text-sm mb-3">
               Stay Connected
             </p>
 
-            <h2 className="text-3xl md:text-4xl font-bold text-[#244B3C]">
+            <h2 className="text-3xl md:text-4xl font-bold text-ink dark:text-stone-50">
               Recent Reports
             </h2>
 
-            <p className="text-[#747A70] mt-3">
+            <p className="text-muted dark:text-stone-400 mt-3">
               Discover the latest lost and found items on campus.
             </p>
           </div>
 
           <Link
             to="/items"
-            className="text-[#244B3C] font-bold flex items-center gap-2 hover:gap-3 transition-all"
+            className="text-ink dark:text-brand-300 font-bold flex items-center gap-2 hover:gap-3 transition-all"
           >
             View All Items
             <ArrowRight size={18} />
@@ -166,14 +166,14 @@ export default function Home() {
 
         ) : (
 
-          <div className="bg-white rounded-2xl p-12 text-center border border-[#E6E5D9]">
-            <Package size={40} className="mx-auto text-[#718B70] mb-4" />
+          <div className="bg-white dark:bg-night-900 rounded-2xl p-12 text-center border border-line dark:border-night-700">
+            <Package size={40} className="mx-auto text-brand-600 dark:text-brand-300 mb-4" />
 
-            <h3 className="text-xl font-bold text-[#244B3C] mb-2">
+            <h3 className="text-xl font-bold text-ink dark:text-stone-50 mb-2">
               No Reports Yet
             </h3>
 
-            <p className="text-[#747A70]">
+            <p className="text-muted dark:text-stone-400">
               New lost and found reports will appear here.
             </p>
           </div>
@@ -184,7 +184,7 @@ export default function Home() {
 
 
       {/* CALL TO ACTION */}
-      <section className="bg-[#DCE6D8] py-20 px-6">
+      <section className="bg-brand-100 dark:bg-night-900 py-20 px-6">
 
         <div className="max-w-4xl mx-auto text-center">
 
@@ -192,11 +192,11 @@ export default function Home() {
             <MapPin size={28} />
           </div>
 
-          <h2 className="text-3xl md:text-4xl font-bold text-[#244B3C] mb-5">
+          <h2 className="text-3xl md:text-4xl font-bold text-ink dark:text-stone-50 mb-5">
             Found Something on Campus?
           </h2>
 
-          <p className="text-[#526456] text-lg mb-8 max-w-2xl mx-auto">
+          <p className="text-body dark:text-stone-300 text-lg mb-8 max-w-2xl mx-auto">
             A small action can make someone's day.
             Report a found item and help it reach its owner.
           </p>
