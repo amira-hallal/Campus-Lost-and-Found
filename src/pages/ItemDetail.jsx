@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import {
   ArrowLeft,
   Calendar,
@@ -9,7 +9,6 @@ import {
   MapPin,
   Pencil,
   Tag,
-  Trash2,
 } from "lucide-react";
 import Modal from "../components/Modal";
 import StatusBadge from "../components/StatusBadge";
@@ -41,8 +40,7 @@ export default function ItemDetailPage() {
 }
 
 function ItemDetail({ id }) {
-  const navigate = useNavigate();
-  const { getItem, getUser, getLocation, getClaimsForItem, addClaim, deleteItem } = useData();
+  const { getItem, getUser, getLocation, getClaimsForItem, addClaim, updateItem } = useData();
   const { currentUser } = useAuth();
 
   const [showDetails, setShowDetails] = useState(false);
@@ -50,7 +48,6 @@ function ItemDetail({ id }) {
   const [message, setMessage] = useState("");
   const [messageError, setMessageError] = useState("");
   const [sentClaim, setSentClaim] = useState(null);
-  const [deleteOpen, setDeleteOpen] = useState(false);
 
   const item = getItem(id);
 
@@ -101,11 +98,6 @@ function ItemDetail({ id }) {
       return;
     }
     setSentClaim(addClaim({ itemId: item.id, claimantId: currentUser.id, message: message.trim() }));
-  };
-
-  const confirmDelete = () => {
-    deleteItem(item.id);
-    navigate("/items");
   };
 
   // Footer buttons of the claim modal change with its state
@@ -253,10 +245,11 @@ function ItemDetail({ id }) {
                   <Pencil className="size-4" aria-hidden="true" />
                   Edit
                 </Link>
-                <button type="button" onClick={() => setDeleteOpen(true)} className="btn-danger-outline">
-                  <Trash2 className="size-4" aria-hidden="true" />
-                  Delete
-                </button>
+                {item.status !== "closed" && (
+                  <button type="button" onClick={() => updateItem(item.id, { status: "closed" })} className="btn-danger-outline">
+                    Close report
+                  </button>
+                )}
               </>
             ) : myClaim ? (
               <p className="text-sm">
@@ -326,24 +319,6 @@ function ItemDetail({ id }) {
         )}
       </Modal>
 
-      {/* Delete confirmation */}
-      <Modal
-        isOpen={deleteOpen}
-        onClose={() => setDeleteOpen(false)}
-        title="Delete this item?"
-        description={`"${item.title}" and any claims on it will be removed. This can't be undone.`}
-        size="sm"
-        footer={
-          <>
-            <button type="button" onClick={() => setDeleteOpen(false)} className="btn-secondary">
-              Cancel
-            </button>
-            <button type="button" onClick={confirmDelete} className="btn-danger">
-              Yes, delete
-            </button>
-          </>
-        }
-      />
     </main>
   );
 }

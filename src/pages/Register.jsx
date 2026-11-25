@@ -4,7 +4,7 @@ import { UserPlus } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const PASSWORD_MIN = 6;
+const PASSWORD_MIN = 8;
 
 const EMPTY_FORM = { name: "", email: "", password: "", confirmPassword: "", role: "" };
 
@@ -38,6 +38,8 @@ export default function Register() {
     if (!form.password) found.password = "Password is required.";
     else if (form.password.length < PASSWORD_MIN)
       found.password = `Password must be at least ${PASSWORD_MIN} characters.`;
+    else if (!/[a-z]/.test(form.password) || !/[A-Z]/.test(form.password) || !/\d/.test(form.password))
+      found.password = "Use at least one uppercase letter, one lowercase letter, and one number.";
 
     if (!form.confirmPassword) found.confirmPassword = "Please confirm your password.";
     else if (form.password !== form.confirmPassword) found.confirmPassword = "Passwords do not match.";
@@ -85,6 +87,7 @@ export default function Register() {
           autoComplete={autoComplete}
           value={form[name]}
           onChange={handleChange}
+          required={name !== "role"}
           aria-invalid={errors[name] ? true : undefined}
           aria-describedby={describedBy}
           className="form-input"
