@@ -2,7 +2,7 @@
 
 **Live site:** https://campus-lost-and-found-pink-six.vercel.app
 
-React + Tailwind CSS + React Router. Frontend-only application using mock data.
+React + Tailwind CSS + React Router frontend, with a separate Express API for Phase 2. The React app still uses mock data for now.
 
 ## Project Topic and Entities
 
@@ -28,6 +28,20 @@ To run the project locally:
 npm install
 npm run dev
 ```
+
+## Phase 2 API
+
+The Express API is in `server/`. It currently loads the existing mock reports into memory for local development; those changes reset when the server restarts. Review the routes and response format with the group before connecting the frontend or database.
+
+In a second terminal, run:
+
+```bash
+cd server
+npm install
+npm run dev
+```
+
+Open `http://localhost:4000/api-docs` for interactive Swagger documentation. See [`server/README.md`](server/README.md) for endpoint details and the database/authentication handoff notes.
 
 ## Routes (`src/App.jsx`)
 
