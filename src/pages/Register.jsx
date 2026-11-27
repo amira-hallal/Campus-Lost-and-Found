@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { UserPlus } from "lucide-react";
+import { Loader2, UserPlus } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import { useFeedback } from "../context/FeedbackContext";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PASSWORD_MIN = 8;
@@ -15,12 +16,15 @@ const ROLES = [
 ];
 
 export default function Register() {
-  const { register, emailExists } = useAuth();
+  const { register } = useAuth();
+  const { notify } = useFeedback();
   const navigate = useNavigate();
   const location = useLocation();
 
   const [form, setForm] = useState(EMPTY_FORM);
   const [errors, setErrors] = useState({});
+  const [formError, setFormError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     document.title = "Register | Campus Lost & Found";
@@ -33,7 +37,7 @@ export default function Register() {
 
     if (!form.email.trim()) found.email = "Email is required.";
     else if (!EMAIL_PATTERN.test(form.email.trim())) found.email = "Enter a valid email, like name@lau.edu.";
-    else if (emailExists(form.email)) found.email = "An account with this email already exists.";
+    // "Email already used" is checked by the server when the form is sent
 
     if (!form.password) found.password = "Password is required.";
     else if (form.password.length < PASSWORD_MIN)
@@ -54,8 +58,10 @@ export default function Register() {
     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: undefined }));
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
+    if (submitting) return;
+    setFormError("");
     const found = validate();
     setErrors(found);
 
@@ -65,8 +71,24 @@ export default function Register() {
       return;
     }
 
-    register(form); // adds the user to the users array and logs them in
-    navigate(location.state?.from ?? "/", { replace: true });
+    setSubmitting(true);
+    try {
+      const user = await register(form); // saves the user in the database and signs them in
+      notify(`Welcome, ${user.name.split(" ")[0]}! Your account is ready.`);
+      navigate(location.state?.from ?? "/", { replace: true });
+    } catch (error) {
+      if (error.status === 409) {
+        setErrors({ email: "An account with this email already exists." });
+        document.getElementById("email")?.focus();
+      } else if (error.details && typeof error.details === "object") {
+        // Field errors from the server, e.g. { password: "..." }
+        setErrors(error.details);
+        setFormError(error.message);
+      } else {
+        setFormError(error.message);
+      }
+      setSubmitting(false);
+    }
   };
 
   // One text field with its label and error message
@@ -118,7 +140,7 @@ export default function Register() {
         <form onSubmit={handleSubmit} noValidate className="mt-8 space-y-5">
           {renderField("name", "Full name", "text", "name")}
           {renderField("email", "Email", "email", "email")}
-          {renderField("password", "Password", "password", "new-password", `At least ${PASSWORD_MIN} characters.`)}
+          {renderField("password", "Password", "password", "new-password", `At least ${PASSWORD_MIN} characters, with an uppercase letter, a lowercase letter and a number.`)}
           {renderField("confirmPassword", "Confirm password", "password", "new-password")}
 
           <div>
@@ -135,8 +157,15 @@ export default function Register() {
             </select>
           </div>
 
-          <button type="submit" className="btn-primary w-full">
-            Register
+          {formError && (
+            <p className="form-error" role="alert">
+              {formError}
+            </p>
+          )}
+
+          <button type="submit" className="btn-primary w-full" disabled={submitting}>
+            {submitting && <Loader2 className="size-4 animate-spin" aria-hidden="true" />}
+            {submitting ? "Creating account..." : "Register"}
           </button>
         </form>
 
