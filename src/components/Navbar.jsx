@@ -3,6 +3,7 @@ import { Link, NavLink, useNavigate } from "react-router-dom";
 import { LogOut, Menu, Moon, Sun, X } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
+import { useFeedback } from "../context/FeedbackContext";
 import { getInitials } from "../utils/format";
 
 const NAV_LINKS = [
