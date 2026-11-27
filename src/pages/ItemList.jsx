@@ -12,7 +12,7 @@ import { HandHeart, LayoutGrid, MapPin, Plus, Search, SearchX, SlidersHorizontal
 import ItemTile from "../components/ItemTile";
 import EmptyState from "../components/EmptyState";
 import { useData } from "../context/DataContext";
-import { CATEGORIES, ITEM_STATUSES } from "../data/mockData";
+import { CATEGORIES, ITEM_STATUSES } from "../data/constants";
 import { formatDate } from "../utils/format";
 
 // Query string names for each filter
