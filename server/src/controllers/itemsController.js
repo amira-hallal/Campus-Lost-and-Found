@@ -1,5 +1,5 @@
 import { ApiError } from "../errors/ApiError.js";
-import { itemRepository } from "../repositories/inMemoryItemRepository.js";
+import { itemRepository } from "../repositories/mongoItemRepository.js";
 
 const itemTypes = new Set(["lost", "found"]);
 const itemStatuses = new Set(["open", "claimed", "closed"]);
