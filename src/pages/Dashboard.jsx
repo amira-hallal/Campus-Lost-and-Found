@@ -1,12 +1,29 @@
+import { useState } from "react";
 import { Link, Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useData } from "../context/DataContext";
+import { useFeedback } from "../context/FeedbackContext";
 import StatusBadge from "../components/StatusBadge";
 import { formatDate } from "../utils/format";
 
 export default function Dashboard() {
   const { currentUser } = useAuth();
   const { claims, items, getItem, getLocation, getUser, updateItem } = useData();
+  const { notify } = useFeedback();
+  const [closingId, setClosingId] = useState(null); // report being closed right now
+
+  // Close a report through the API and say whether it worked
+  const closeReport = async (item) => {
+    setClosingId(item.id);
+    try {
+      await updateItem(item.id, { status: "closed" });
+      notify(`"${item.title}" is now closed.`);
+    } catch (error) {
+      notify(`Couldn't close the report: ${error.message}`, "error");
+    } finally {
+      setClosingId(null);
+    }
+  };
 
   if (!currentUser) {
     return <Navigate to="/login" replace />;
@@ -90,9 +107,10 @@ export default function Dashboard() {
                     </Link>
                     {item.status !== "closed" && <button
                       type="button"
-                      onClick={() => updateItem(item.id, { status: "closed" })}
-                      className="text-sm text-red-700 dark:text-red-300"
-                    >Close report</button>}
+                      onClick={() => closeReport(item)}
+                      disabled={closingId === item.id}
+                      className="text-sm text-red-700 disabled:opacity-60 dark:text-red-300"
+                    >{closingId === item.id ? "Closing..." : "Close report"}</button>}
                   </div>
                 </div>
               );
