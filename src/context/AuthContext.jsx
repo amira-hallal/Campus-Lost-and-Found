@@ -1,41 +1,95 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useState } from "react";
+import { api, getToken, setToken, setUnauthorizedHandler } from "../api/client";
 import { useData } from "./DataContext";
 
 const AuthContext = createContext(null);
 
-const sameEmail = (a, b) => a.trim().toLowerCase() === b.trim().toLowerCase();
+// Accept { data: { token, user } } and also { token, user }
+function readSession(payload) {
+  const body = payload?.data ?? payload ?? {};
+  return { token: body.token, user: body.user };
+}
 
 export function AuthProvider({ children }) {
-  const { users, addUser } = useData();
-  const [currentUserId, setCurrentUserId] = useState(null);
+  const { rememberUser } = useData();
+  const [currentUser, setCurrentUser] = useState(null);
+  const [authChecking, setAuthChecking] = useState(() => Boolean(getToken()));
+  const [sessionEnded, setSessionEnded] = useState(false);
 
-  // Read the user from DataContext so profile changes show up everywhere
-  const currentUser = users.find((user) => user.id === currentUserId) ?? null;
+  const signIn = useCallback(
+    (token, user) => {
+      setToken(token);
+      setCurrentUser(user);
+      setSessionEnded(false);
+      rememberUser(user); // so "Posted by" shows your name right away
+    },
+    [rememberUser],
+  );
 
-  const emailExists = (email) => users.some((user) => sameEmail(user.email, email));
+  const logout = useCallback(() => {
+    setToken(null);
+    setCurrentUser(null);
+  }, []);
 
-  // Returns the user if the email and password match, otherwise null
-  const login = (email, password) => {
-    const user = users.find((entry) => sameEmail(entry.email, email) && entry.password === password);
-    if (user) setCurrentUserId(user.id);
-    return user ?? null;
-  };
-
-  const logout = () => setCurrentUserId(null);
-
-  // Adds the new user to the users array and logs them in
-  const register = ({ name, email, password, role }) => {
-    const newUser = addUser({
-      name: name.trim(),
-      email: email.trim().toLowerCase(),
-      password,
-      role: role || "student",
+  // A 401 on any request means the saved token is no longer valid
+  useEffect(() => {
+    setUnauthorizedHandler(() => {
+      logout();
+      setSessionEnded(true);
     });
-    setCurrentUserId(newUser.id);
-    return newUser;
+    return () => setUnauthorizedHandler(null);
+  }, [logout]);
+
+  // Restore the session after a page refresh
+  useEffect(() => {
+    if (!getToken()) return;
+    let cancelled = false;
+    api
+      .get("/api/auth/me")
+      .then(({ data }) => {
+        if (cancelled) return;
+        setCurrentUser(data);
+        rememberUser(data);
+      })
+      .catch(() => {
+        if (!cancelled) setToken(null);
+      })
+      .finally(() => {
+        if (!cancelled) setAuthChecking(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [rememberUser]);
+
+  const login = async (email, password) => {
+    try {
+      const { token, user } = readSession(await api.post("/api/auth/login", { email: email.trim(), password }));
+      signIn(token, user);
+      return user;
+    } catch (error) {
+      if (error.status === 401) return null; // wrong email or password
+      throw error;
+    }
   };
 
-  const value = { currentUser, login, logout, register, emailExists };
+  const register = async ({ name, email, password, role }) => {
+    const body = { name: name.trim(), email: email.trim().toLowerCase(), password };
+    if (role) body.role = role;
+    const { token, user } = readSession(await api.post("/api/auth/register", body));
+    signIn(token, user);
+    return user;
+  };
+
+  const value = {
+    currentUser,
+    authChecking,
+    sessionEnded,
+    clearSessionEnded: () => setSessionEnded(false),
+    login,
+    logout,
+    register,
+  };
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
