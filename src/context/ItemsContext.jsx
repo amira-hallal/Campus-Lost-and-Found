@@ -35,7 +35,7 @@ export function useItems() {
 
   const updateItem = (id, form) => {
     const location = data.locations.find((entry) => entry.name === form.building);
-    data.updateItem(id, {
+        return data.updateItem(id, {
       title: form.name.trim(),
       type: statusToType(form.status),
       category: form.category,
