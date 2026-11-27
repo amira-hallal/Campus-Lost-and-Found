@@ -1,17 +1,21 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useFeedback } from "../context/FeedbackContext";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
   const { login } = useAuth();
+  const { notify } = useFeedback();
   const navigate = useNavigate();
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
   event.preventDefault();
+  if (submitting) return;
   setError("");
 
   const cleanEmail = email.trim();
@@ -30,14 +34,21 @@ export default function Login() {
     setError("Please enter your password.");
     return;
   }
-
-  const user = login(cleanEmail, password);
-
-  if (user) {
-    navigate("/dashboard");
-  } else {
+    
+  setSubmitting(true);
+  try {
+    const user = await login(cleanEmail, password);
+    if (user) {
+      notify(`Welcome back, ${user.name.split(" ")[0]}!`);
+      navigate("/dashboard");
+      return;
+    }
     setError("Email or password is incorrect.");
+  } catch (requestError) {
+    setError(requestError.message);
   }
+  setSubmitting(false);
+}
 }
   return (
     <main className="min-h-screen bg-[#f7f6f0] px-5 py-10 text-[#213b31] dark:bg-night-900 dark:text-stone-100">
@@ -95,9 +106,10 @@ export default function Login() {
 
           <button
             type="submit"
-            className="w-full rounded-lg bg-[#216747] px-4 py-3 text-sm font-semibold text-white"
+            disabled={submitting}
+            className="w-full rounded-lg bg-[#216747] px-4 py-3 text-sm font-semibold text-white disabled:opacity-60"
           >
-            Sign in
+            {submitting ? "Signing in..." : "Sign in"}
           </button>
         </form>
 
