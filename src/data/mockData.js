@@ -1,47 +1,20 @@
 /**
- * Mock data for Phase 1 (no backend yet).
- * These arrays are the starting state for DataContext. Any add, edit or delete
- * changes the copy in React state only, so everything resets on page refresh.
+ * Seed data. Phase 1 used these arrays as the app's starting state; in Phase 2
+ * the React app reads everything from the API, and these records are only used
+ * by `npm run seed` (server/src/db/seed.js) to fill the database.
  *
  * Entities: Items, Locations, Claims, Users
  */
 
-// Shared option lists so forms, filters and badges all use the same values
-export const ITEM_TYPES = ["lost", "found"];
-
-export const CATEGORIES = [
-  "Electronics",
-  "Bags",
-  "Keys",
-  "ID & Cards",
-  "Clothing",
-  "Books & Notes",
-  "Bottles",
-  "Accessories",
-  "Other",
-];
-
-// open = still looking, claimed = a claim was approved, closed = returned / report closed
-export const ITEM_STATUSES = ["open", "claimed", "closed"];
-
-export const CLAIM_STATUSES = ["pending", "approved", "rejected"];
-
-// Default picture for items reported without an image
-const CATEGORY_IMAGES = {
-  Electronics: "/images/categories/electronics.svg",
-  Bags: "/images/categories/bags.svg",
-  Keys: "/images/categories/keys.svg",
-  "ID & Cards": "/images/categories/id-cards.svg",
-  Clothing: "/images/categories/clothing.svg",
-  "Books & Notes": "/images/categories/books.svg",
-  Bottles: "/images/categories/bottles.svg",
-  Accessories: "/images/categories/accessories.svg",
-  Other: "/images/categories/other.svg",
-};
-
-export function getCategoryImage(category) {
-  return CATEGORY_IMAGES[category] ?? CATEGORY_IMAGES.Other;
-}
+// The option lists moved to constants.js. They are re-exported here so the
+// server models and the seed script keep working without changes.
+export {
+  CATEGORIES,
+  CLAIM_STATUSES,
+  ITEM_STATUSES,
+  ITEM_TYPES,
+  getCategoryImage,
+} from "./constants.js";
 
 export const initialUsers = [
   {
