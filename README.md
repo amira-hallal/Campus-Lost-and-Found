@@ -2,7 +2,7 @@
 
 **Live site:** https://campus-lost-and-found-pink-six.vercel.app
 
-React + Tailwind CSS + React Router frontend, with a separate Express API for Phase 2. The React app still uses mock data for now.
+React + Tailwind CSS + React Router frontend, with an Express + MongoDB API (Phase 2) in `server/`. The React app reads and saves all data through the API.
 
 ## Project Topic and Entities
 
@@ -14,34 +14,67 @@ The main entities are:
 - Claims
 - Users
 
-## How Mock Data Simulates CRUD
+## How the Frontend Uses the API (Phase 2)
 
-The application uses mock data to simulate interactions. Users can add reports, edit their own reports, and close reports they submitted. Other users can submit and manage claims through the claim workflow.
+The React app no longer uses mock data. Everything comes from the API:
 
-All data (items, claims, users and locations) lives in React state through the shared `DataContext`, so a change on one page shows up on every other page while the app is running. Refreshing the page resets everything to the original mock data in `src/data/mockData.js`.
+- **Loading:** when the app opens, `DataContext` loads items, claims and locations from the API. A loading message shows while it waits, and if the server can't be reached an error appears with a **Try again** button (`components/DataGate.jsx`).
+- **Saving:** reporting, editing and closing items, sending, approving, rejecting and withdrawing claims, logging in and registering are all API requests. Buttons show "Saving...", "Sending..." and so on while waiting, and can't be clicked twice.
+- **Feedback:** after each action a short success or error message appears in the corner (`context/FeedbackContext.jsx`). Server validation errors are shown next to the matching form field (for example "description must be at least 10 characters").
+- **Signing in:** the API returns a token, which is saved in the browser so a page refresh keeps you signed in. It's sent with every request as `Authorization: Bearer <token>`. If it expires, you're signed out with a message.
+- `src/data/mockData.js` is now only used by `npm run seed` to fill the database. The option lists (categories, statuses) live in `src/data/constants.js`.
 
 ## Run Locally
 
-To run the project locally:
+You need Node.js 20.19 or newer and a MongoDB database (MongoDB Atlas free tier works).
 
-```bash
-npm install
-npm run dev
-```
-
-## Phase 2 API
-
-The Express API is in `server/`. It currently loads the existing mock reports into memory for local development; those changes reset when the server restarts. Review the routes and response format with the group before connecting the frontend or database.
-
-In a second terminal, run:
+**1. Start the API** (first terminal):
 
 ```bash
 cd server
 npm install
+cp .env.example .env      # then put your MongoDB address in server/.env
+npm run seed              # first time only: fills the database with the demo data
 npm run dev
 ```
 
-Open `http://localhost:4000/api-docs` for interactive Swagger documentation. See [`server/README.md`](server/README.md) for endpoint details and the database/authentication handoff notes.
+The API runs at `http://localhost:4000`. Swagger docs: `http://localhost:4000/api-docs`.
+
+**2. Start the website** (second terminal, in the project folder):
+
+```bash
+npm install
+npm run dev
+```
+
+Open `http://localhost:5173`. The website calls the API at `http://localhost:4000` by default. To use a different address, copy `.env.example` to `.env` and change `VITE_API_URL`.
+
+Demo accounts (after seeding): `sara.abdo@lau.edu`, `mariam.abadi@lau.edu`, `amira.hallal@lau.edu`, `roua.youness@lau.edu`, all with password `password123`.
+
+Never commit `.env` files: they hold the database password and secrets.
+
+## Phase 2 API
+
+The Express API is in `server/`. See [`server/README.md`](server/README.md) for every endpoint. Responses use `{ data, meta }` for success and `{ error: { code, message, details?, requestId } }` for errors.
+
+| Area | Endpoints | Used by |
+|------|-----------|---------|
+| Items | `GET/POST /api/items`, `GET/PATCH/DELETE /api/items/:id` | Home, Item List, Item Details, Report/Edit form, Dashboard |
+| Locations | `GET /api/locations`, `GET /api/locations/:id` | Item List filters, Location Details, Report form |
+| Claims | `GET/POST /api/claims`, `GET/PATCH/DELETE /api/claims/:id`, `POST /api/claims/:id/approve`, `/reject`, `/withdraw` | Item Details, Claim Details, Dashboard |
+| Sign-in | `POST /api/auth/register`, `POST /api/auth/login`, `GET /api/auth/me` | Register, Login, Navbar (keeps you signed in) |
+| Users | `GET /api/users/:id` (public name only) | "Posted by" and claimant names |
+
+**Sign-in format the frontend expects** (`context/AuthContext.jsx`):
+
+| Request | Body | Success response |
+|---------|------|------------------|
+| `POST /api/auth/register` | `{ name, email, password, role? }` | `201 { data: { token, user } }`, or `409` if the email is already used |
+| `POST /api/auth/login` | `{ email, password }` | `200 { data: { token, user } }`, or `401` if the email or password is wrong |
+| `GET /api/auth/me` | header `Authorization: Bearer <token>` | `200 { data: user }`, or `401` if the token is invalid |
+| `GET /api/users/:id` | | `200 { data: { id, name, role, joinedAt } }` (no email or password) |
+
+`user` is `{ id, name, email, role, joinedAt }` with a numeric `id`, and never includes the password or its hash.
 
 ## Routes (`src/App.jsx`)
 
@@ -62,11 +95,12 @@ Open `http://localhost:4000/api-docs` for interactive Swagger documentation. See
 
 ## Shared Tools
 
-- **Data:** `useData()` from `context/DataContext.jsx` is the single source of truth for items, users, claims, and locations. The compatibility `useItems()` hook translates older form fields into this shared item state; it does not create a second store.
+- **API calls:** `api.get/post/patch/delete(path, body)` from `api/client.js`. It adds the sign-in token and throws an `ApiError` with a readable `message` (plus `status`, `code`, `details`) when something fails.
+- **Data:** `useData()` from `context/DataContext.jsx` holds the items, claims and locations loaded from the API (`status`, `loadError` and `reload()` describe the loading). Its change functions (`addItem`, `updateItem`, `deleteItem`, `addClaim`, `updateClaimStatus`, `withdrawClaim`) call the API and return Promises: `await` them and show `error.message` if they fail. The compatibility `useItems()` hook translates older form fields into this shared item state.
 - **Login State:** `useAuth()` from `context/AuthContext.jsx` provides:
-  `{ currentUser, login(email, password), logout(), register(form), emailExists(email) }`.
-  The `login` function returns the user or `null` if the email or password is incorrect.
-  Demo accounts are available in `mockData.js` (password: `password123`).
+  `{ currentUser, authChecking, login(email, password), logout(), register(form) }`.
+  `login` resolves to the user, or `null` if the email or password is incorrect. `register` resolves to the new, signed-in user, or throws (status `409` if the email is taken).
+- **Feedback:** `useFeedback()` from `context/FeedbackContext.jsx` provides `notify(message, "success" | "error")` to show a short message in the corner.
 - **Theme:** `useTheme()` from `context/ThemeContext.jsx` provides `{ theme, toggleTheme }`. Shared pages use palette tokens in `src/index.css` and Tailwind `dark:` classes.
 - **Colors:** Defined in `src/index.css`, based on the project palette:
   - `brand-50` to `brand-950` (greens, with `brand-800` = `#244B3C`)
@@ -81,24 +115,19 @@ Ready-made classes include: `btn-primary`, `btn-secondary`, `btn-danger`, `btn-d
 
 ## Deployment
 
-The project includes `vercel.json` (Vercel) and `public/_redirects` (Netlify) to redirect routes to `index.html`. This allows pages such as `/items/3` to work when refreshed.
+The website and the API are deployed separately.
 
-### Vercel
-1. Push the project to GitHub.
-2. Visit Vercel and select **Add New Project**.
-3. Import the GitHub repository.
-4. Select **Vite** as the framework.
-5. Set the build command to `npm run build`.
-6. Set the output directory to `dist`.
-7. Deploy.
+### API (for example on Render)
+1. Create a **Web Service** from the GitHub repo with root directory `server`, build command `npm install` and start command `npm start`.
+2. Add environment variables in the host's settings (never in GitHub): `MONGODB_URI`, the JWT secret used by the sign-in code, and `FRONTEND_ORIGIN` = the Vercel address (e.g. `https://campus-lost-and-found-pink-six.vercel.app`).
+3. In MongoDB Atlas, under **Network Access**, allow the host to connect.
+4. The server must listen on all network addresses for the host to reach it: `server/src/server.js` currently listens on `127.0.0.1`, which only works locally.
 
-### Netlify
-1. Push the project to GitHub.
-2. Visit Netlify and select **Add New Site**.
-3. Import the Git repository.
-4. Set the build command to `npm run build`.
-5. Set the publish directory to `dist`.
-6. Deploy.
+### Website (Vercel)
+1. In the Vercel project, open **Settings → Environment Variables** and add `VITE_API_URL` = the API address (e.g. `https://mars-api.onrender.com`).
+2. Redeploy. Vercel builds with `npm run build` and serves `dist`.
+
+`vercel.json` (Vercel) and `public/_redirects` (Netlify) send every URL to `index.html`, so pages like `/items/3` work when refreshed.
 
 ## Screenshots
 
@@ -126,9 +155,20 @@ All screenshots are in `docs/screenshots/`.
 
 ## Team
 
+### Phase 1
+
 | Member | Name | Parts |
 |--------|------|-------|
 | M1 | Roua Youness | Homepage (`/`): designed the homepage layout, hero section, statistics displaying total reports, lost items, and found items, Recent Reports section, and call-to-action section. Connected homepage content to item data. Developed reusable Item Cards displaying item images and information, and connected them to individual item details pages. Implemented simulated item management (adding, editing, and deleting items) using React Context. Developed the reusable Add/Edit Item form with required-field validation. |
 | M2 | Sara Abdo | Claim Details (`/claims/:id`): claim message, linked item and timeline, with approve/reject for the reporter and withdraw for the claimant. Location Details (`/locations/:id`): building info, drop-off point, report counts and the items reported there. Also built the Item List page (`ItemList.jsx`) with search and filters. Shared work: mock data (`mockData.js`), shared state (`DataContext`), reusable Modal and ItemTile card, and README screenshots. |
 | M3 | Amira Hallal |Login (/login): email and password validation, show/hide password, and sign-in using the shared authentication state. My Reports & Claims Dashboard (/dashboard): displays the signed-in user’s profile, reports they posted, claims they made, and claims on their reports, with links to edit or delete reports and view claim details.|
 | M4 | Mariam Abadi | Navbar (links, mobile hamburger menu, login/logout state, and theme toggle), routes in `App.jsx`, Item Details (`/items/:id`), Register (`/register`), 404 page, and deployment+ link added. |
+
+### Phase 2
+
+| Member | Name | Parts |
+|--------|------|-------|
+| M1 | Roua Youness | |
+| M2 | Sara Abdo | |
+| M3 | Amira Hallal | |
+| M4 | Mariam Abadi | Connected the React pages to the API (`api/client.js`, `DataContext`, `AuthContext`), removed mock-data usage from the frontend, added loading, success and error feedback (`DataGate`, `FeedbackContext`, busy buttons, server validation messages), and updated the README. |
