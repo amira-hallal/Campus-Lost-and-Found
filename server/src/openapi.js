@@ -27,6 +27,134 @@ const itemId = {
   schema: { type: "integer", minimum: 1 },
 };
 
+// Locations and Claims documentation
+const idQuery = (name) => ({ name, in: "query", schema: { type: "integer", minimum: 1 } });
+const pageParameters = [
+  idQuery("page"),
+  { name: "limit", in: "query", schema: { type: "integer", minimum: 1, maximum: 100, default: 20 } },
+];
+
+const jsonContent = (schema) => ({ content: { "application/json": { schema } } });
+const schemaRef = (name) => ({ $ref: `#/components/schemas/${name}` });
+
+const dataResponse = (description, name) => ({
+  description,
+  ...jsonContent({ type: "object", properties: { data: schemaRef(name) } }),
+});
+
+const listResponse = (description, name) => ({
+  description,
+  ...jsonContent({
+    type: "object",
+    properties: {
+      data: { type: "array", items: schemaRef(name) },
+      meta: { $ref: "#/components/schemas/ItemListResponse/properties/meta" },
+    },
+  }),
+});
+
+const messageProperty = { type: "string", minLength: 10, maxLength: 500 };
+
+// A protected claim operation, with the errors it can return.
+const claimWrite = (summary, description, responses, requestBody) => ({
+  tags: ["Claims"],
+  summary,
+  description,
+  security: [{ bearerAuth: [] }],
+  ...(requestBody ? { requestBody } : {}),
+  responses: {
+    ...responses,
+    400: errorResponse, 401: errorResponse, 403: errorResponse, 404: errorResponse, 409: errorResponse,
+  },
+});
+
+const decision = (summary, description) => claimWrite(
+  summary,
+  description,
+  { 200: dataResponse("Decided claim", "Claim") },
+  { required: false, ...jsonContent({ type: "object", properties: { ownerNote: { type: "string", maxLength: 200 } } }) },
+);
+
+const withdrawal = claimWrite(
+  "Withdraw a pending claim",
+  "Claimant only. The claim is removed.",
+  { 204: { description: "Claim removed" } },
+);
+
+const locationAndClaimPaths = {
+  "/api/locations": {
+    get: {
+      tags: ["Locations"],
+      summary: "List campus buildings",
+      parameters: pageParameters,
+      responses: { 200: listResponse("Paginated locations", "Location"), 400: errorResponse },
+    },
+  },
+  "/api/locations/{id}": {
+    parameters: [itemId],
+    get: {
+      tags: ["Locations"],
+      summary: "Get a building",
+      responses: { 200: dataResponse("Location", "Location"), 400: errorResponse, 404: errorResponse },
+    },
+  },
+  "/api/claims": {
+    get: {
+      tags: ["Claims"],
+      summary: "List and filter claims",
+      parameters: [
+        idQuery("itemId"),
+        idQuery("claimantId"),
+        { name: "status", in: "query", schema: { type: "string", enum: ["pending", "approved", "rejected"] } },
+        ...pageParameters,
+      ],
+      responses: { 200: listResponse("Paginated claims", "Claim"), 400: errorResponse },
+    },
+    post: claimWrite(
+      "Claim an item",
+      "The claimant is the signed-in user. The item must be open, reported by someone else, and not already claimed by this user.",
+      { 201: dataResponse("Created claim", "Claim") },
+      {
+        required: true,
+        ...jsonContent({
+          type: "object",
+          required: ["itemId", "message"],
+          properties: { itemId: { type: "integer", minimum: 1 }, message: messageProperty },
+        }),
+      },
+    ),
+  },
+  "/api/claims/{id}": {
+    parameters: [itemId],
+    get: {
+      tags: ["Claims"],
+      summary: "Get a claim",
+      responses: { 200: dataResponse("Claim", "Claim"), 400: errorResponse, 404: errorResponse },
+    },
+    patch: claimWrite(
+      "Edit a pending claim",
+      "Claimant only. Only the message can change.",
+      { 200: dataResponse("Updated claim", "Claim") },
+      {
+        required: true,
+        ...jsonContent({ type: "object", required: ["message"], properties: { message: messageProperty } }),
+      },
+    ),
+    delete: withdrawal,
+  },
+  "/api/claims/{id}/approve": {
+    parameters: [itemId],
+    post: decision("Approve a claim", "Item reporter only. Marks the item as claimed and rejects its other pending claims."),
+  },
+  "/api/claims/{id}/reject": {
+    parameters: [itemId],
+    post: decision("Reject a claim", "Item reporter only."),
+  },
+  "/api/claims/{id}/withdraw": { parameters: [itemId], post: withdrawal },
+};
+
+const textFields = (...names) => Object.fromEntries(names.map((name) => [name, { type: "string" }]));
+
 export const openApiDocument = {
   openapi: "3.0.3",
   info: {
@@ -35,8 +163,13 @@ export const openApiDocument = {
     description: "API for reporting and finding lost items around campus. Local item data resets when the server restarts.",
   },
   servers: [{ url: "http://localhost:4000", description: "Local development" }],
-  tags: [{ name: "Items", description: "Lost and found item reports" }],
+  tags: [
+    { name: "Items", description: "Lost and found item reports" },
+    { name: "Locations", description: "Campus buildings" },
+    { name: "Claims", description: "Claims on item reports" },
+  ],
   paths: {
+    ...locationAndClaimPaths,
     "/api/health": {
       get: {
         summary: "Check that the API is running",
@@ -104,7 +237,29 @@ export const openApiDocument = {
     },
   },
   components: {
+    securitySchemes: {
+      bearerAuth: { type: "http", scheme: "bearer", bearerFormat: "JWT" },
+    },
     schemas: {
+      Location: {
+        type: "object",
+        properties: {
+          id: { type: "integer", example: 1 },
+          ...textFields("name", "code", "description", "hours", "dropOffPoint", "image"),
+        },
+      },
+      Claim: {
+        type: "object",
+        properties: {
+          id: { type: "integer", example: 1 },
+          itemId: { type: "integer", example: 5 },
+          claimantId: { type: "integer", example: 3 },
+          message: messageProperty,
+          date: { type: "string", format: "date" },
+          status: { type: "string", enum: ["pending", "approved", "rejected"] },
+          ...textFields("ownerNote", "decidedAt"),
+        },
+      },
       Item: {
         type: "object",
         required: ["id", "type", "title", "category", "locationId", "date", "description", "status", "postedBy"],
