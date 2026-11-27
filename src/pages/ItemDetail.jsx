@@ -6,6 +6,7 @@ import {
   ChevronDown,
   FileQuestion,
   HandHeart,
+  Loader2,
   MapPin,
   Pencil,
   Tag,
@@ -15,7 +16,8 @@ import StatusBadge from "../components/StatusBadge";
 import EmptyState from "../components/EmptyState";
 import { useData } from "../context/DataContext";
 import { useAuth } from "../context/AuthContext";
-import { getCategoryImage } from "../data/mockData";
+import { useFeedback } from "../context/FeedbackContext";
+import { getCategoryImage } from "../data/constants";
 import { formatDate, getInitials, timeAgo } from "../utils/format";
 
 const MESSAGE_MIN = 10;
@@ -42,12 +44,15 @@ export default function ItemDetailPage() {
 function ItemDetail({ id }) {
   const { getItem, getUser, getLocation, getClaimsForItem, addClaim, updateItem } = useData();
   const { currentUser } = useAuth();
+  const { notify } = useFeedback();
 
   const [showDetails, setShowDetails] = useState(false);
   const [claimOpen, setClaimOpen] = useState(false);
   const [message, setMessage] = useState("");
   const [messageError, setMessageError] = useState("");
   const [sentClaim, setSentClaim] = useState(null);
+  const [sending, setSending] = useState(false);
+  const [closing, setClosing] = useState(false);
 
   const item = getItem(id);
 
@@ -91,13 +96,33 @@ function ItemDetail({ id }) {
     setClaimOpen(true);
   };
 
-  const submitClaim = (event) => {
+  const submitClaim = async (event) => {
     event.preventDefault();
+    if (sending) return;
     if (message.trim().length < MESSAGE_MIN) {
       setMessageError(`Please write at least ${MESSAGE_MIN} characters so the poster can check it's a match.`);
       return;
     }
-    setSentClaim(addClaim({ itemId: item.id, claimantId: currentUser.id, message: message.trim() }));
+    setSending(true);
+    try {
+      setSentClaim(await addClaim({ itemId: item.id, message: message.trim() }));
+    } catch (error) {
+      setMessageError(error.message); // e.g. "You already have a claim on this item."
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const closeReport = async () => {
+    setClosing(true);
+    try {
+      await updateItem(item.id, { status: "closed" });
+      notify("Report closed. It can't be claimed anymore.");
+    } catch (error) {
+      notify(`Couldn't close the report: ${error.message}`, "error");
+    } finally {
+      setClosing(false);
+    }
   };
 
   // Footer buttons of the claim modal change with its state
@@ -120,7 +145,10 @@ function ItemDetail({ id }) {
     claimFooter = (
       <>
         <button type="button" onClick={() => setClaimOpen(false)} className="btn-secondary">Cancel</button>
-        <button type="submit" form="claim-form" className="btn-primary">Send claim</button>
+        <button type="submit" form="claim-form" className="btn-primary" disabled={sending}>
+          {sending && <Loader2 className="size-4 animate-spin" aria-hidden="true" />}
+          {sending ? "Sending..." : "Send claim"}
+        </button>
       </>
     );
   }
@@ -246,8 +274,9 @@ function ItemDetail({ id }) {
                   Edit
                 </Link>
                 {item.status !== "closed" && (
-                  <button type="button" onClick={() => updateItem(item.id, { status: "closed" })} className="btn-danger-outline">
-                    Close report
+                  <button type="button" onClick={closeReport} disabled={closing} className="btn-danger-outline">
+                    {closing && <Loader2 className="size-4 animate-spin" aria-hidden="true" />}
+                    {closing ? "Closing..." : "Close report"}
                   </button>
                 )}
               </>
@@ -282,7 +311,7 @@ function ItemDetail({ id }) {
             ? "You need an account to send a claim."
             : sentClaim
               ? `${poster?.name ?? "The poster"} will review your message and reply on the claim page.`
-              : `Tell ${poster?.name.split(" ")[0] ?? "the poster"} why this is a match. Mention details only the real owner would know.`
+              : `Tell ${poster?.name?.split(" ")[0] ?? "the poster"} why this is a match. Mention details only the real owner would know.`
         }
         footer={claimFooter}
       >
