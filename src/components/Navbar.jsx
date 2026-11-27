@@ -24,6 +24,7 @@ export default function Navbar() {
 
   const { currentUser, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const { notify } = useFeedback();
 
   const navigate = useNavigate();
 
@@ -32,6 +33,7 @@ export default function Navbar() {
   const handleLogout = () => {
     logout();
     closeMenu();
+    notify("You've signed out.");
     navigate("/");
   };
 
