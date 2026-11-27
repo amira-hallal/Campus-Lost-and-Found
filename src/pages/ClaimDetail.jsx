@@ -16,6 +16,7 @@ import {
   Clock,
   FileQuestion,
   Inbox,
+  Loader2,
   Lock,
   MapPin,
   ShieldCheck,
@@ -26,9 +27,10 @@ import {
 import Modal from "../components/Modal";
 import StatusBadge from "../components/StatusBadge";
 import EmptyState from "../components/EmptyState";
-import { getCategoryImage } from "../data/mockData";
+import { getCategoryImage } from "../data/constants";
 import { useData } from "../context/DataContext";
 import { useAuth } from "../context/AuthContext";
+import { useFeedback } from "../context/FeedbackContext";
 import { formatDate, getInitials } from "../utils/format";
 
 const NOTE_MAX_LENGTH = 200;
@@ -39,11 +41,14 @@ export default function ClaimDetail() {
   const { getClaim, getItem, getUser, getLocation, getClaimsForItem, updateClaimStatus, withdrawClaim } =
     useData();
   const { currentUser } = useAuth();
+  const { notify } = useFeedback();
 
   const [decision, setDecision] = useState(null); // "approved" | "rejected" while the confirm modal is open
   const [ownerNote, setOwnerNote] = useState("");
   const [showWithdraw, setShowWithdraw] = useState(false);
   const [showOtherClaims, setShowOtherClaims] = useState(false);
+  const [busy, setBusy] = useState(false); // waiting for the server
+  const [actionError, setActionError] = useState("");
   const statusRef = useRef(null);
 
   const claim = getClaim(id);
@@ -83,24 +88,44 @@ export default function ClaimDetail() {
   const isClaimant = currentUser?.id === claim.claimantId;
   const isPending = claim.status === "pending";
   const isFoundItem = item.type === "found";
-  const claimantFirstName = claimant?.name.split(" ")[0] ?? "the claimant";
-  const ownerFirstName = owner?.name.split(" ")[0] ?? "the reporter";
+  const claimantFirstName = claimant?.name?.split(" ")[0] ?? "the claimant";
+  const ownerFirstName = owner?.name?.split(" ")[0] ?? "the reporter";
 
   const closeDecisionModal = () => {
+    if (busy) return;
     setDecision(null);
     setOwnerNote("");
+    setActionError("");
   };
 
-  const confirmDecision = () => {
-    updateClaimStatus(claim.id, decision, ownerNote.trim());
-    closeDecisionModal();
-    // Move keyboard/screen reader focus to the new status message
-    requestAnimationFrame(() => statusRef.current?.focus());
+  const confirmDecision = async () => {
+    setBusy(true);
+    setActionError("");
+    try {
+      await updateClaimStatus(claim.id, decision, ownerNote.trim());
+      notify(decision === "approved" ? "Claim approved." : "Claim rejected.");
+      setBusy(false);
+      setDecision(null);
+      setOwnerNote("");
+      // Move keyboard/screen reader focus to the new status message
+      requestAnimationFrame(() => statusRef.current?.focus());
+    } catch (error) {
+      setActionError(error.message);
+      setBusy(false);
+    }
   };
 
-  const confirmWithdraw = () => {
-    withdrawClaim(claim.id);
-    navigate("/dashboard");
+  const confirmWithdraw = async () => {
+    setBusy(true);
+    setActionError("");
+    try {
+      await withdrawClaim(claim.id);
+      notify("Your claim was withdrawn.");
+      navigate("/dashboard");
+    } catch (error) {
+      setActionError(error.message);
+      setBusy(false);
+    }
   };
 
   return (
@@ -413,9 +438,11 @@ export default function ClaimDetail() {
             <button
               type="button"
               onClick={confirmDecision}
+              disabled={busy}
               className={decision === "approved" ? "btn-primary" : "btn-danger"}
             >
-              {decision === "approved" ? "Yes, approve" : "Yes, reject"}
+              {busy && <Loader2 className="size-4 animate-spin" aria-hidden="true" />}
+              {busy ? "Saving..." : decision === "approved" ? "Yes, approve" : "Yes, reject"}
             </button>
           </>
         }
@@ -438,24 +465,38 @@ export default function ClaimDetail() {
           className="form-input resize-none"
         />
         <p id="owner-note-count" className="mt-1 text-right text-xs text-muted">
-          {ownerNote.length}/{NOTE_MAX_LENGTH}
+        {ownerNote.length}/{NOTE_MAX_LENGTH}
         </p>
+        {actionError && (
+          <p className="form-error" role="alert">
+            {actionError}
+          </p>
+        )}
       </Modal>
 
       {/* Withdraw confirmation */}
       <Modal
         isOpen={showWithdraw}
-        onClose={() => setShowWithdraw(false)}
+        onClose={() => {
+          if (busy) return;
+          setShowWithdraw(false);
+          setActionError("");
+        }}
         title="Withdraw your claim?"
-        description={`This removes your claim on "${item.title}". You can send a new claim later from the item page.`}
+        description={
+          actionError
+            ? `Couldn't withdraw the claim: ${actionError}`
+            : `This removes your claim on "${item.title}". You can send a new claim later from the item page.`
+        }
         size="sm"
         footer={
           <>
-            <button type="button" onClick={() => setShowWithdraw(false)} className="btn-secondary">
+            <button type="button" onClick={() => setShowWithdraw(false)} disabled={busy} className="btn-secondary">
               Keep my claim
             </button>
-            <button type="button" onClick={confirmWithdraw} className="btn-danger">
-              Withdraw
+            <button type="button" onClick={confirmWithdraw} disabled={busy} className="btn-danger">
+              {busy && <Loader2 className="size-4 animate-spin" aria-hidden="true" />}
+              {busy ? "Withdrawing..." : "Withdraw"}
             </button>
           </>
         }
