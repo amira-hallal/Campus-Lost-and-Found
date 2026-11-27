@@ -9,7 +9,7 @@
 import { Link } from "react-router-dom";
 import { ArrowUpRight, MapPin } from "lucide-react";
 import StatusBadge from "./StatusBadge";
-import { getCategoryImage } from "../data/mockData";
+import { getCategoryImage } from "../data/constants";
 import { timeAgo } from "../utils/format";
 
 export default function ItemTile({ item, location }) {
