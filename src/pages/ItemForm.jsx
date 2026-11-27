@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Save } from "lucide-react";
+import { ArrowLeft, Loader2, Save } from "lucide-react";
 import { useItems } from "../context/ItemsContext";
 import { useAuth } from "../context/AuthContext";
 import { useData } from "../context/DataContext";
-import { CATEGORIES } from "../data/mockData";
+import { useFeedback } from "../context/FeedbackContext";
+import { CATEGORIES } from "../data/constants";
 
 const buildings = [
   "Adnan Kassar School of Business",
@@ -19,6 +20,8 @@ const buildings = [
   "Joseph G. Jabbra Gymnasium",
   "Beirut Underground Parking",
 ];
+
+const API_FIELD_TO_FORM = { title: "name", type: "status", locationId: "building" };
 
 const emptyForm = {
   name: "",
@@ -45,6 +48,9 @@ export default function ItemForm() {
   );
   const sharedItem = id ? getSharedItem(id) : null;
   const [errors, setErrors] = useState({});
+  const [formError, setFormError] = useState("");
+  const [saving, setSaving] = useState(false);
+  const { notify } = useFeedback();
 
   const [formData, setFormData] = useState(emptyForm);
 
@@ -67,8 +73,10 @@ export default function ItemForm() {
     if (errors[name]) setErrors((previous) => ({ ...previous, [name]: "" }));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+   const handleSubmit = async (e) => {
+     e.preventDefault();
+     if (saving) return;
+     setFormError("");
 
     const nextErrors = {};
     if (!formData.name.trim()) nextErrors.name = "Enter an item name.";
@@ -81,14 +89,29 @@ export default function ItemForm() {
       document.getElementById(Object.keys(nextErrors)[0])?.focus();
       return;
     }
-
-    if (isEditing) {
-      updateItem(id, formData);
-    } else {
-      addItem({ ...formData, postedBy: currentUser.id });
+     
+    setSaving(true);
+    try {
+      if (isEditing) {
+        await updateItem(id, formData);
+        notify("Changes saved.");
+      } else {
+        await addItem({ ...formData, postedBy: currentUser.id });
+        notify("Report submitted. Thank you for helping!");
+      }
+      navigate(isEditing ? `/items/${id}` : "/items");
+    } catch (error) {
+      // Show the server's field errors next to the matching inputs
+      if (error.details && typeof error.details === "object" && !Array.isArray(error.details)) {
+        const fieldErrors = {};
+        for (const [field, text] of Object.entries(error.details)) {
+          fieldErrors[API_FIELD_TO_FORM[field] ?? field] = text;
+        }
+        setErrors(fieldErrors);
+      }
+      setFormError(error.message);
+      setSaving(false);
     }
-
-    navigate(isEditing ? `/items/${id}` : "/items");
   };
 
   if (isEditing && (!existingItem || !currentUser || sharedItem?.postedBy !== currentUser.id)) {
@@ -276,13 +299,20 @@ export default function ItemForm() {
               </p>
             </div>
 
+            {formError && (
+              <p className="form-error" role="alert">
+                {formError}
+              </p>
+            )}
+
             {/* Submit */}
             <button
               type="submit"
-              className="w-full bg-brand-800 dark:bg-brand-500 text-white dark:text-night-950 py-4 rounded-lg font-bold flex items-center justify-center gap-2 hover:bg-brand-700 dark:hover:bg-brand-400 transition"
+              disabled={saving}
+              className="disabled:opacity-60 w-full bg-brand-800dark:bg-brand-500 text-white dark:text-night-950 py-4 rounded-lg font-bold flex items-center justify-center gap-2 hover:bg-brand-700 dark:hover:bg-brand-400 transition"
             >
-              <Save size={20} />
-              {isEditing ? "Save Changes" : "Submit Report"}
+              {saving ? <Loader2 size={20} className="animate-spin" /> : <Save size={20} />}
+              {saving ? "Saving..." : isEditing ? "Save Changes" : "Submit Report"}
             </button>
 
           </form>
