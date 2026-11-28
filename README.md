@@ -170,5 +170,5 @@ All screenshots are in `docs/screenshots/`.
 |--------|------|-------|
 | M1 | Roua Youness | |
 | M2 | Sara Abdo | |
-| M3 | Amira Hallal | |
+| M3 | Amira Hallal | Added user registration and login with bcrypt password hashing and JWTs; protected item routes and added ownership checks so users can only edit or delete their own reports; documented authentication in Swagger. |
 | M4 | Mariam Abadi | Connected the React pages to the API (`api/client.js`, `DataContext`, `AuthContext`), removed mock-data usage from the frontend, added loading, success and error feedback (`DataGate`, `FeedbackContext`, busy buttons, server validation messages), and updated the README. |
