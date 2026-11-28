@@ -93,6 +93,31 @@ The Express API is in `server/`. See [`server/README.md`](server/README.md) for 
 | `/report` | Redirects to `/items/new` | |
 | `*` | 404 Page | `pages/NotFound.jsx` |
 
+## Database (M2)
+
+MongoDB Atlas with Mongoose. Models are in `server/src/models/`. `npm run seed` fills them from the Phase 1 mock data.
+
+| Collection | Main fields | Relationships |
+|------------|-------------|---------------|
+| Users | id, name, email (unique), passwordHash, role | |
+| Locations | id, name, code (unique), description, hours, dropOffPoint | |
+| Items | id, type, title, category, date, description, status | `postedBy` → User, `locationId` → Location |
+| Claims | id, message, date, status, ownerNote, decidedAt | `itemId` → Item, `claimantId` → User (one claim per user per item) |
+
+### Locations and Claims API
+
+| Method and path | Login | Body | Success |
+|-----------------|-------|------|---------|
+| `GET /api/locations` | No | | `200 { data: [locations], meta }` |
+| `GET /api/locations/:id` | No | | `200 { data: location }`, or `404` |
+| `GET /api/claims` | No | Filters: `itemId`, `claimantId`, `status`, `page`, `limit` | `200 { data: [claims], meta }` |
+| `GET /api/claims/:id` | No | | `200 { data: claim }`, or `404` |
+| `POST /api/claims` | Yes | `{ itemId, message }` | `201 { data: claim }`, or `403` if you reported the item |
+| `PATCH /api/claims/:id` | Yes, claimant only | `{ message }` | `200 { data: claim }` |
+| `POST /api/claims/:id/approve` | Yes, item reporter only | `{ ownerNote? }` | `200 { data: claim }`. Rejects the other pending claims and marks the item as claimed |
+| `POST /api/claims/:id/reject` | Yes, item reporter only | `{ ownerNote? }` | `200 { data: claim }` |
+| `POST /api/claims/:id/withdraw` or `DELETE /api/claims/:id` | Yes, claimant only | | `204` |
+
 ## Shared Tools
 
 - **API calls:** `api.get/post/patch/delete(path, body)` from `api/client.js`. It adds the sign-in token and throws an `ApiError` with a readable `message` (plus `status`, `code`, `details`) when something fails.
@@ -169,6 +194,6 @@ All screenshots are in `docs/screenshots/`.
 | Member | Name | Parts |
 |--------|------|-------|
 | M1 | Roua Youness |Set up the Express server for the Campus Lost & Found application. Implemented the Items API endpoints for listing, viewing, creating, updating, and deleting item reports. Added request logging and shared error-handling middleware to support consistent API responses. Set up Swagger documentation so the API endpoints and their request and response formats can be viewed and tried through the browser. Connected item storage to the MongoDB repository. |
-| M2 | Sara Abdo | |
+| M2 | Sara Abdo | Designed the MongoDB database with Mongoose: User, Item, Location and Claim models and their relationships, the database connection, and a seed script that loads the Phase 1 mock data. Built the Locations and Claims API, including the claim workflow (approve, reject, withdraw) with ownership checks, and documented these routes in Swagger. |
 | M3 | Amira Hallal | Added user registration and login with bcrypt password hashing and JWTs; protected item routes and added ownership checks so users can only edit or delete their own reports; documented authentication in Swagger. |
 | M4 | Mariam Abadi | Connected the React pages to the API (`api/client.js`, `DataContext`, `AuthContext`), removed mock-data usage from the frontend, added loading, success and error feedback (`DataGate`, `FeedbackContext`, busy buttons, server validation messages), and updated the README. |
