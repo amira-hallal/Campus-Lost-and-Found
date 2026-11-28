@@ -49,7 +49,6 @@ export default function Login() {
   }
   setSubmitting(false);
 }
-}
   return (
     <main className="min-h-screen bg-[#f7f6f0] px-5 py-10 text-[#213b31] dark:bg-night-900 dark:text-stone-100">
       <section className="mx-auto mt-10 max-w-md rounded-2xl border border-[#e2e6de] bg-white p-7 shadow-sm dark:border-night-700 dark:bg-night-800 sm:p-10">

@@ -8,6 +8,7 @@ import { openApiDocument } from "./openapi.js";
 import claimsRoutes from "./routes/claimsRoutes.js";
 import itemsRoutes from "./routes/itemsRoutes.js";
 import locationsRoutes from "./routes/locationsRoutes.js";
+import authRoutes from "./routes/authRoutes.js";
 
 // The server starts only once the database connection succeeds.
 await connectDatabase();
@@ -22,6 +23,7 @@ app.disable("x-powered-by");
 app.use(requestLogger);
 app.use(cors({ origin: allowedOrigins }));
 app.use(express.json({ limit: "1mb" }));
+app.use("/api/auth", authRoutes);
 
 app.get("/api/health", (_req, res) => {
   res.json({ status: "ok", service: "mars-campus-lost-found-api" });
