@@ -168,7 +168,7 @@ All screenshots are in `docs/screenshots/`.
 
 | Member | Name | Parts |
 |--------|------|-------|
-| M1 | Roua Youness | |
+| M1 | Roua Youness |Set up the Express server for the Campus Lost & Found application. Implemented the Items API endpoints for listing, viewing, creating, updating, and deleting item reports. Added request logging and shared error-handling middleware to support consistent API responses. Set up Swagger documentation so the API endpoints and their request and response formats can be viewed and tried through the browser. Connected item storage to the MongoDB repository. |
 | M2 | Sara Abdo | |
 | M3 | Amira Hallal | Added user registration and login with bcrypt password hashing and JWTs; protected item routes and added ownership checks so users can only edit or delete their own reports; documented authentication in Swagger. |
 | M4 | Mariam Abadi | Connected the React pages to the API (`api/client.js`, `DataContext`, `AuthContext`), removed mock-data usage from the frontend, added loading, success and error feedback (`DataGate`, `FeedbackContext`, busy buttons, server validation messages), and updated the README. |
